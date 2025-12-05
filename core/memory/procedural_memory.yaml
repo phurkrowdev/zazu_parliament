@@ -1,0 +1,233 @@
+# Procedural Memory Workflow Templates
+# Stored in Redis for fast retrieval, human-editable YAML format
+
+creative_mythos_generation:
+  id: creative_mythos_generation
+  name: Creative Mythos Generation
+  description: Workflow for generating narratives aligned with user canon
+  mode: creation
+  sequence:
+    - step: 1
+      subsystem: interpreter
+      action: clarify_creative_intent
+      outputs: [clarified_request, canon_constraints]
+      
+    - step: 2
+      subsystem: strategist
+      action: map_narrative_structure
+      inputs: [clarified_request, canon_constraints]
+      outputs: [narrative_scaffold, time_horizon]
+      
+    - step: 3
+      subsystem: artisan
+      action: generate_artifact
+      inputs: [narrative_scaffold]
+      outputs: [creative_artifact]
+      constraints:
+        - respect_canon: true
+        - dreamspace_protection: true
+      
+    - step: 4
+      subsystem: mirror
+      action: validate_mythos_alignment
+      inputs: [creative_artifact, canon_constraints]
+      outputs: [alignment_score, identity_coherence]
+      
+    - step: 5
+      subsystem: sentinel
+      action: pre_publication_review
+      inputs: [creative_artifact, alignment_score]
+      outputs: [approval_status]
+      trigger_condition: publication_requested
+      
+  memory_logging:
+    episodic: true
+    semantic: true
+    reflective: true
+
+trading_analysis:
+  id: trading_analysis
+  name: Trading Risk Analysis
+  description: Workflow for financial analysis with non-execution boundary
+  mode: inquiry
+  sequence:
+    - step: 1
+      subsystem: interpreter
+      action: parse_trading_context
+      outputs: [market_context, asset_params, timeframe]
+      
+    - step: 2
+      subsystem: strategist
+      action: generate_scenarios
+      inputs: [market_context, timeframe]
+      outputs: [bull_scenario, bear_scenario, range_scenario]
+      
+    - step: 3
+      subsystem: ledger
+      action: quantify_risk
+      inputs: [asset_params, bull_scenario, bear_scenario, range_scenario]
+      outputs: [position_sizing, stop_loss, expected_value, variance]
+      
+    - step: 4
+      subsystem: mirror
+      action: detect_emotional_state
+      outputs: [emotional_load, gambling_risk_flag]
+      
+    - step: 5
+      subsystem: sentinel
+      action: enforce_non_execution
+      outputs: [advisory_only_flag]
+      constitutional_check: no_wallet_access
+      
+  memory_logging:
+    episodic: true
+    reflective: true
+    
+  constraints:
+    - execution_forbidden: true
+    - user_approval_required: true
+
+recovery_scaffolding:
+  id: recovery_scaffolding
+  name: Recovery & Emotional Coherence
+  description: Workflow for user state stabilization without clinical authority
+  mode: inquiry
+  sequence:
+    - step: 1
+      subsystem: mirror
+      action: detect_load_signals
+      outputs: [load_indicators, interaction_patterns]
+      
+    - step: 2
+      subsystem: interpreter
+      action: clarify_recovery_needs
+      inputs: [load_indicators]
+      outputs: [clarified_needs]
+      constraints:
+        - no_clinical_diagnosis: true
+        
+    - step: 3
+      subsystem: strategist
+      action: model_stabilization_paths
+      inputs: [clarified_needs]
+      outputs: [grounding_techniques, scope_reduction_options]
+      
+    - step: 4
+      subsystem: artisan
+      action: generate_supportive_artifacts
+      inputs: [stabilization_paths]
+      outputs: [affirmations, mythos_anchors]
+      
+    - step: 5
+      subsystem: sentinel
+      action: verify_no_therapeutic_simulation
+      outputs: [boundary_compliance]
+      
+  memory_logging:
+    episodic: true
+    reflective: true
+    
+  protected_boundaries:
+    - no_diagnosis: true
+    - no_prescription: true
+    - no_therapy_simulation: true
+    - user_agency_centered: true
+
+halt_repair_protocol:
+  id: halt_repair_protocol
+  name: Sentinel Halt & Repair Loop
+  description: Bounded iteration protocol for constitutional violations
+  mode: execution
+  max_iterations: 3
+  sequence:
+    - step: 1
+      subsystem: sentinel
+      action: raise_halt
+      outputs: [fault_code, violation_description]
+      
+    - step: 2
+      subsystem: strategist
+      action: generate_repair
+      inputs: [fault_code]
+      outputs: [revised_plan, alternatives]
+      
+    - step: 3
+      subsystem: mirror
+      action: check_alignment_drift
+      inputs: [revised_plan]
+      outputs: [drift_assessment]
+      
+    - step: 4
+      subsystem: ledger
+      action: recalculate_risk
+      inputs: [revised_plan]
+      outputs: [updated_risk_metrics]
+      
+    - step: 5
+      subsystem: executor
+      action: prepare_revised_output
+      inputs: [revised_plan, updated_risk_metrics]
+      outputs: [revised_artifact]
+      
+    - step: 6
+      subsystem: sentinel
+      action: review_revision
+      inputs: [revised_artifact]
+      outputs: [approval_or_halt]
+      
+  escalation:
+    trigger: max_iterations_exceeded
+    target: user_via_mirror
+    payload: [full_diagnostic, iteration_history]
+    
+  memory_logging:
+    episodic: true
+    reflective: true
+    violations: true
+
+anti_paralysis_calibration:
+  id: anti_paralysis_calibration
+  name: Anti-Paralysis Threshold Calibration
+  description: Self-audit triggered when halt rate exceeds threshold
+  mode: inquiry
+  trigger:
+    type: halt_rate_threshold
+    threshold: 0.5
+    measurement_window: 100
+  sequence:
+    - step: 1
+      subsystem: mirror
+      action: evaluate_hypervigilance
+      outputs: [vigilance_assessment, false_positive_rate]
+      
+    - step: 2
+      subsystem: ledger
+      action: recalibrate_risk_tolerance
+      inputs: [vigilance_assessment]
+      outputs: [adjusted_thresholds]
+      
+    - step: 3
+      subsystem: strategist
+      action: redefine_acceptable_uncertainty
+      inputs: [adjusted_thresholds]
+      outputs: [updated_bounds]
+      
+    - step: 4
+      subsystem: interpreter
+      action: evaluate_semantic_drift
+      outputs: [drift_metrics]
+      
+    - step: 5
+      subsystem: sentinel
+      action: apply_calibration
+      inputs: [adjusted_thresholds, updated_bounds]
+      outputs: [new_baseline]
+      
+  memory_logging:
+    calibration_history: true
+    reflective: true
+    
+  bounds:
+    adjustment_range: "±20%"
+    minimum_threshold: 0.1
+    maximum_threshold: 0.9

@@ -1,0 +1,250 @@
+#!/usr/bin/env python3
+"""
+Zazu CLI - Command-line interface for Zazu Parliamentary Intelligence
+Usage: zazu ask "What is my mission?"
+       zazu create "Generate a mythos about sovereignty"
+       zazu plan "Build Phase 3" --consensus
+"""
+
+import warnings
+warnings.filterwarnings('ignore', category=UserWarning, module='torch')
+
+import asyncio
+import sys
+import json
+from pathlib import Path
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from core.chorus import Chorus
+from rich.console import Console
+from rich.panel import Panel
+from rich.markdown import Markdown
+import argparse
+
+console = Console()
+
+
+async def cmd_ask(args):
+    """Simple inquiry mode"""
+    console.print(f"[dim]Asking parliament: {args.question}[/]")
+    
+    chorus = Chorus()
+    await chorus.initialize()
+    
+    try:
+        result = await chorus.process_request(args.question, mode="inquiry")
+        
+        # Display response
+        console.print(Panel(
+            f"[green]Agents:[/] {', '.join(result['agents_involved'])}\n"
+            f"[green]Coherence:[/] {result['reflection']['coherence_score']:.2f}",
+            title="Parliament Response",
+            border_style="cyan"
+        ))
+        
+        if args.json:
+            console.print(json.dumps(result, indent=2))
+        
+    finally:
+        await chorus.shutdown()
+
+
+async def cmd_create(args):
+    """Creation mode - planning, mythos, worldbuilding"""
+    console.print(f"[dim]Creating: {args.request}[/]")
+    
+    chorus = Chorus()
+    await chorus.initialize()
+    
+    try:
+        result = await chorus.process_request(
+            args.request,
+            mode="creation",
+            require_consensus=args.consensus
+        )
+        
+        # Show outputs
+        console.print(Panel(
+            f"[green]Agents:[/] {', '.join(result['agents_involved'])}\n"
+            f"[green]Mode:[/] {result['mode_used']}",
+            title="Creation Complete",
+            border_style="magenta"
+        ))
+        
+        # Artisan output
+        if 'artisan' in result.get('outputs', {}):
+            creation = result['outputs']['artisan']['creation']
+            console.print(f"\n[bold yellow]🎨 {creation['title']}[/]")
+            console.print(Panel(Markdown(creation['content']), border_style="yellow"))
+        
+        # Strategist output
+        if 'strategist' in result.get('outputs', {}):
+            strategy = result['outputs']['strategist']['strategy']
+            console.print(f"\n[bold blue]📋 Strategy[/]")
+            console.print(f"  Primary: {strategy['primary_approach']}")
+            console.print(f"  Timeline: {len(strategy['timeline'])} phases")
+            console.print(f"  Risks: {len(strategy['risk_factors'])} factors")
+        
+        # Ledger output
+        if 'ledger' in result.get('outputs', {}):
+            analysis = result['outputs']['ledger']['analysis']
+            console.print(f"\n[bold green]📊 Risk: {analysis['risk_score']:.2f}[/]")
+        
+        # Consensus
+        if args.consensus and 'consensus' in result:
+            console.print(f"\n[bold]Consensus Score: {result['consensus']['consensus_score']:.2f}[/]")
+        
+        if args.json:
+            console.print("\n" + json.dumps(result, indent=2))
+        
+    finally:
+        await chorus.shutdown()
+
+
+async def cmd_plan(args):
+    """Planning mode with consensus"""
+    console.print(f"[dim]Planning: {args.goal}[/]")
+    
+    chorus = Chorus()
+    await chorus.initialize()
+    
+    try:
+        result = await chorus.process_request(
+            args.goal,
+            mode="creation",
+            require_consensus=True
+        )
+        
+        # Show strategic plan
+        if 'strategist' in result.get('outputs', {}):
+            strategy = result['outputs']['strategist']['strategy']
+            
+            console.print(Panel(
+                f"[green]Primary Approach:[/] {strategy['primary_approach']}\n"
+                f"[green]Timeline Phases:[/] {len(strategy['timeline'])}\n"
+                f"[green]Risk Factors:[/] {len(strategy['risk_factors'])}",
+                title="📋 Strategic Plan",
+                border_style="blue"
+            ))
+            
+            # Show timeline
+            console.print("\n[bold]Timeline:[/]")
+            for phase in strategy['timeline']:
+                console.print(f"  • {phase['phase']}: {phase['duration_days']} days")
+            
+            # Show risks
+            if strategy['risk_factors']:
+                console.print("\n[bold]Risk Factors:[/]")
+                for risk in strategy['risk_factors']:
+                    console.print(f"  ⚠ {risk}")
+        
+        # Show risk assessment
+        if 'ledger' in result.get('outputs', {}):
+            analysis = result['outputs']['ledger']['analysis']
+            console.print(f"\n[bold]Risk Score:[/] {analysis['risk_score']:.2f} ({analysis.get('risk_level', 'N/A')})")
+        
+        # Consensus
+        if 'consensus' in result:
+            console.print(f"\n[bold]Consensus:[/] {result['consensus']['consensus_score']:.2f}")
+            console.print(f"[dim]Threshold met: {result['consensus']['threshold_met']}[/]")
+        
+        if args.json:
+            console.print("\n" + json.dumps(result, indent=2))
+        
+    finally:
+        await chorus.shutdown()
+
+
+async def cmd_status(args):
+    """Show parliament status"""
+    console.print("[dim]Checking parliament status...[/]")
+    
+    chorus = Chorus()
+    await chorus.initialize()
+    
+    try:
+        status = chorus.get_agent_status()
+        
+        console.print(Panel(
+            "\n".join([f"{'✅' if active else '❌'} {name.title()}" 
+                      for name, active in status.items()]),
+            title="🎭 Parliament Status",
+            border_style="green"
+        ))
+        
+        if args.json:
+            console.print(json.dumps(status, indent=2))
+        
+    finally:
+        await chorus.shutdown()
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Zazu Parliamentary Intelligence CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  zazu ask "What should I focus on today?"
+  zazu create "Generate a mythos about transformation"
+  zazu plan "Build Phase 3 features" --consensus
+  zazu status
+        """
+    )
+    
+    subparsers = parser.add_subparsers(dest='command', help='Commands')
+    
+    # Ask command
+    ask_parser = subparsers.add_parser('ask', help='Ask a question (inquiry mode)')
+    ask_parser.add_argument('question', help='Question to ask')
+    ask_parser.add_argument('--json', action='store_true', help='Output as JSON')
+    
+    # Create command
+    create_parser = subparsers.add_parser('create', help='Create content (creation mode)')
+    create_parser.add_argument('request', help='What to create')
+    create_parser.add_argument('--consensus', action='store_true', help='Require multi-agent consensus')
+    create_parser.add_argument('--json', action='store_true', help='Output as JSON')
+    
+    # Plan command
+    plan_parser = subparsers.add_parser('plan', help='Create strategic plan with consensus')
+    plan_parser.add_argument('goal', help='Goal to plan for')
+    plan_parser.add_argument('--json', action='store_true', help='Output as JSON')
+    
+    # Status command
+    status_parser = subparsers.add_parser('status', help='Show parliament status')
+    status_parser.add_argument('--json', action='store_true', help='Output as JSON')
+    
+    args = parser.parse_args()
+    
+    if not args.command:
+        parser.print_help()
+        return 1
+    
+    # Route to appropriate command
+    try:
+        if args.command == 'ask':
+            asyncio.run(cmd_ask(args))
+        elif args.command == 'create':
+            asyncio.run(cmd_create(args))
+        elif args.command == 'plan':
+            asyncio.run(cmd_plan(args))
+        elif args.command == 'status':
+            asyncio.run(cmd_status(args))
+        
+        return 0
+        
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Interrupted by user[/]")
+        return 130
+    except Exception as e:
+        console.print(f"\n[bold red]Error:[/] {e}")
+        if '--debug' in sys.argv:
+            import traceback
+            traceback.print_exc()
+        return 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())

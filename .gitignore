@@ -1,0 +1,59 @@
+# .gitignore for Zazu Constitutional Intelligence System
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Jupyter
+.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+
+# Database
+*.db
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes (data persists in named volumes)
+infrastructure/postgres_data/
+infrastructure/redis_data/
+infrastructure/minio_data/
+infrastructure/loki_data/
+infrastructure/grafana_data/
+
+# Model cache
+.cache/
+models/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Distribution
+dist/
+build/
+*.egg-info/
