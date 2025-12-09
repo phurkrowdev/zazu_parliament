@@ -83,6 +83,9 @@ python tests/validate_phase2b.py
 
 # Test constitutional compliance (Sentinel)
 pytest tests/test_constitutional_compliance.py -v
+
+# Run mocked integration tests (New in Phase 2)
+python tests/test_parliament_mocked.py
 ```
 
 **See [`TESTING.md`](TESTING.md) for detailed testing guide and interactive examples.**
@@ -145,6 +148,7 @@ Zazu_2026/
 ├── core/
 │   ├── constitution.json         # Constitutional kernel
 │   ├── init_zazu.py              # Initialization sequence
+│   ├── chorus.py                 # Multi-agent orchestrator
 │   ├── memory/
 │   │   ├── schemas.sql           # Postgres memory schemas
 │   │   └── procedural_memory.yaml# Workflow templates
@@ -152,14 +156,21 @@ Zazu_2026/
 ├── agents/
 │   ├── base_agent.py             # Abstract agent template
 │   ├── sentinel_agent.py         # Safety adjudicator
-│   ├── [... 6 more agents TBD]
+│   ├── interpreter_agent.py      # Intent classifier
+│   ├── strategist_agent.py       # Planner
+│   ├── artisan_agent.py          # Creative engine
+│   ├── ledger_agent.py           # Risk engine
+│   ├── executor_agent.py         # Action gateway
+│   └── mirror_agent.py           # Self-model
 ├── playbooks/
 │   └── [Operational workflows]
 ├── infrastructure/
 │   ├── docker-compose.yml        # Service orchestration
 │   └── loki-config.yml           # Reflective memory config
 ├── tests/
-│   └── test_constitutional_compliance.py
+│   ├── test_constitutional_compliance.py
+│   ├── test_parliament_mocked.py
+│   └── ...
 └── requirements.txt
 ```
 
@@ -179,15 +190,18 @@ pytest tests/test_constitutional_compliance.py -v
 
 # With coverage
 pytest tests/ --cov=core --cov=agents
+
+# Run mocked parliament validation
+python tests/test_parliament_mocked.py
 ```
 
-## Next Steps (Phase 2)
+## Next Steps (Phase 2 Roadmap)
 
-- [ ] Implement remaining 6 subsystem agents
-- [ ] Build Chorus orchestrator (mode-switching + consensus)
-- [ ] Test orthogonality (failure isolation)
-- [ ] Validate halt-repair loops
-- [ ] Test epistemic redundancy mechanisms
+- [x] Implement all 7 subsystem agents (Completed in `agents/`)
+- [ ] **Integration Testing for Chorus**: Build robust test suites for `core/chorus.py` to verify multi-agent routing and consensus.
+- [ ] **Implement Halt-Repair Loops**: Update `Chorus` to handle Sentinel's rejection signals by routing back to Strategist/Artisan for revision (repair loop).
+- [ ] **Epistemic Redundancy**: Replace placeholder consensus logic in `Chorus` with real comparison of agent outputs (e.g., Ledger risk vs. Strategist plan).
+- [ ] **Dockerize Execution Sandbox**: Upgrade `ExecutorAgent` from local subprocess execution to isolated Docker containers.
 
 ## Constitutional Highlights
 
